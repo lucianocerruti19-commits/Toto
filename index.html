@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toto Bar</title>
+
+<style>
+body{margin:0;background:#000;color:#d4af37;font-family:Arial}
+header{text-align:center;padding:20px;border-bottom:1px solid rgba(212,175,55,0.3)}
+header img{width:90px}
+.container{padding:15px}
+.section{margin-top:25px}
+.section h2{border-bottom:1px solid rgba(212,175,55,0.3);padding-bottom:8px}
+.card{background:#0c0c0c;border:1px solid rgba(212,175,55,0.4);padding:15px;border-radius:14px;margin-bottom:15px}
+input{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:1px solid rgba(212,175,55,0.4);background:#111;color:#d4af37}
+button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:10px;font-weight:bold;background:#d4af37;color:black}
+.carrito{background:#111;padding:15px;border-radius:14px;margin-top:25px;border:1px solid rgba(212,175,55,0.4)}
+.itemCarrito{display:flex;justify-content:space-between;margin-bottom:8px}
+.total{font-size:18px;margin-top:10px}
+.btnEliminar{background:red;color:white;padding:5px 8px;border:none;border-radius:6px}
+</style>
+</head>
+<body>
+
+<header>
+<img src="logo.png">
+<h2>Toto Bar</h2>
+</header>
+
+<div class="container">
+
+<label>Número de Mesa</label>
+<input type="number" id="mesa" placeholder="Ej: 4">
+
+<div id="menu"></div>
+
+<div class="carrito">
+<h2>Carrito</h2>
+<div id="listaCarrito"></div>
+<div class="total">Total: $<span id="total">0</span></div>
+<button onclick="enviarPedido()">Enviar Pedido</button>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyCa-R6z76qoMt6Wf9EZFSqqGNY8U4JUMtM",
+authDomain:"menu-pro-app.firebaseapp.com",
+projectId:"menu-pro-app",
+storageBucket:"menu-pro-app.firebasestorage.app",
+messagingSenderId:"42917274964",
+appId:"1:42917274964:web:13e161810ad195718994c1"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+let carrito=[];
+let total=0;
+
+const productos=[
+"Milanesa Clásica","Milanesa Napolitana","Milanesa a Caballo",
+"Burger Clásica","Burger Especial","Burger Toto",
+"Pancho Simple","Pancho Súper","Pancho con Agregado",
+"Pizza Muzza","Pizza Especial","Pizza Toto",
+"Papas Fritas Clásicas Grandes","Papas con Cheddar Grandes","Papas Toto",
+"Pachata Clásica","Pachata Especial",
+"Lomo Clásico","Lomo Especial",
+"Barroluco Especial de Milanesa",
+"Muzza + Bebida","Muzza + Cerveza",
+"Pizza Especial + Bebida","Pizza Especial + Cerveza",
+"2 Burger + Bebida","Papas Clásicas + Bebida",
+"Copón Gin","Copón Fernet","Copón Gancia","Copón Vodka",
+"Botella Vino Tinto","Botella Vino Blanco"
+];
+
+const menu=document.getElementById("menu");
+
+productos.forEach((prod,i)=>{
+menu.innerHTML+=`
+<div class="card">
+<h3>${prod}</h3>
+<input type="number" id="p${i}" placeholder="Precio">
+<button onclick="agregar('${prod}','p${i}')">Agregar</button>
+</div>`;
+});
+
+window.agregar=(producto,id)=>{
+const precio=parseFloat(document.getElementById(id).value);
+if(!precio){alert("Ingrese precio");return;}
+
+carrito.push({producto,precio});
+total+=precio;
+renderCarrito();
+}
+
+function renderCarrito(){
+const lista=document.getElementById("listaCarrito");
+lista.innerHTML="";
+carrito.forEach((item,index)=>{
+lista.innerHTML+=`
+<div class="itemCarrito">
+<span>${item.producto} - $${item.precio}</span>
+<button class="btnEliminar" onclick="eliminar(${index})">X</button>
+</div>`;
+});
+document.getElementById("total").innerText=total;
+}
+
+window.eliminar=(index)=>{
+total-=carrito[index].precio;
+carrito.splice(index,1);
+renderCarrito();
+}
+
+window.enviarPedido=async()=>{
+const mesa=document.getElementById("mesa").value;
+if(!mesa || carrito.length===0){alert("Falta mesa o carrito vacío");return;}
+
+await addDoc(collection(db,"pedidos"),{
+mesa,
+items:carrito,
+total,
+estado:"pendiente",
+fecha:new Date()
+});
+
+carrito=[];
+total=0;
+renderCarrito();
+alert("Pedido enviado a cocina 🔥");
+}
+</script>
+
+</body>
+</html>

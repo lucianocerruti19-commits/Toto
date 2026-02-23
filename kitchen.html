@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cocina</title>
+
+<style>
+body{background:#000;color:#d4af37;font-family:Arial;padding:10px}
+.card{background:#0c0c0c;border:1px solid rgba(212,175,55,0.4);padding:15px;border-radius:14px;margin-bottom:15px}
+button{width:100%;padding:10px;margin-top:8px;border:none;border-radius:8px;font-weight:bold}
+.listo{background:#d4af37;color:black}
+.eliminar{background:red;color:white}
+</style>
+</head>
+<body>
+
+<h1>Panel Cocina</h1>
+<audio id="alerta" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+<div id="pedidos"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyCa-R6z76qoMt6Wf9EZFSqqGNY8U4JUMtM",
+authDomain:"menu-pro-app.firebaseapp.com",
+projectId:"menu-pro-app",
+storageBucket:"menu-pro-app.firebasestorage.app",
+messagingSenderId:"42917274964",
+appId:"1:42917274964:web:13e161810ad195718994c1"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const contenedor=document.getElementById("pedidos");
+const sonido=document.getElementById("alerta");
+
+onSnapshot(collection(db,"pedidos"),snap=>{
+contenedor.innerHTML="";
+snap.forEach(d=>{
+const data=d.data();
+if(data.estado!=="entregado"){
+if(data.estado==="pendiente") sonido.play();
+contenedor.innerHTML+=`
+<div class="card">
+<h3>Mesa ${data.mesa}</h3>
+<p>${data.producto}</p>
+<p>$${data.precio}</p>
+<p>${data.estado}</p>
+<button class="listo" onclick="marcar('${d.id}')">LISTO</button>
+<button class="eliminar" onclick="borrar('${d.id}')">Eliminar</button>
+</div>`;
+}
+});
+});
+
+window.marcar=async(id)=>{
+await updateDoc(doc(db,"pedidos",id),{estado:"listo"});
+}
+
+window.borrar=async(id)=>{
+await deleteDoc(doc(db,"pedidos",id));
+}
+</script>
+
+</body>
+</html>

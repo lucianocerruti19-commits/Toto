@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dueño - Toto Bar</title>
+
+<style>
+body{background:#000;color:#d4af37;font-family:Arial;padding:15px}
+.card{background:#0c0c0c;border:1px solid rgba(212,175,55,0.4);padding:15px;border-radius:14px;margin-bottom:15px}
+</style>
+</head>
+<body>
+
+<h1>Panel Dueño</h1>
+
+<div class="card">
+<h2>Total General</h2>
+<p id="totalGeneral">$0</p>
+</div>
+
+<div class="card">
+<h2>Ventas Hoy</h2>
+<p id="ventasHoy">$0</p>
+</div>
+
+<div class="card">
+<h2>Pedidos Hoy</h2>
+<p id="pedidosHoy">0</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyCa-R6z76qoMt6Wf9EZFSqqGNY8U4JUMtM",
+authDomain:"menu-pro-app.firebaseapp.com",
+projectId:"menu-pro-app",
+storageBucket:"menu-pro-app.firebasestorage.app",
+messagingSenderId:"42917274964",
+appId:"1:42917274964:web:13e161810ad195718994c1"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+onSnapshot(collection(db,"pedidos"),snap=>{
+let totalGeneral=0;
+let ventasHoy=0;
+let pedidosHoy=0;
+
+const hoy=new Date().toDateString();
+
+snap.forEach(doc=>{
+const d=doc.data();
+if(d.estado==="entregado"){
+totalGeneral+=d.total;
+
+const fechaPedido=new Date(d.fecha.seconds*1000).toDateString();
+if(fechaPedido===hoy){
+ventasHoy+=d.total;
+pedidosHoy++;
+}
+}
+});
+
+document.getElementById("totalGeneral").innerText="$"+totalGeneral;
+document.getElementById("ventasHoy").innerText="$"+ventasHoy;
+document.getElementById("pedidosHoy").innerText=pedidosHoy;
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toto Bar - Acceso</title>
+
+<style>
+body{
+  background:black;
+  color:#d4af37;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  flex-direction:column;
+}
+
+input,button{
+  width:250px;
+  padding:12px;
+  margin:8px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  background:#d4af37;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Toto Bar</h2>
+
+<input type="password" id="pass" placeholder="Contraseña">
+<button onclick="entrar()">Ingresar</button>
+
+<script>
+function entrar(){
+  const p = document.getElementById("pass").value;
+
+  if(p==="cocina123"){
+    window.location="cocina.html";
+  }
+  else if(p==="mozo123"){
+    window.location="mozo.html";
+  }
+  else if(p==="dueno123"){
+    window.location="dueno.html";
+  }
+  else{
+    alert("Contraseña incorrecta");
+  }
+}
+</script>
+
+</body>
+</html>
